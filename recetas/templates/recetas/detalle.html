@@ -1,0 +1,510 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ receta.titulo }} | Recetas Gourmet{% endblock %}
+
+{% block extra_css %}
+<style>
+    .recipe-detail {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .recipe-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+        align-items: center;
+    }
+    
+    .recipe-image-container {
+        position: relative;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    
+    .recipe-image {
+        width: 100%;
+        height: 400px;
+        object-fit: cover;
+    }
+    
+    .recipe-placeholder {
+        width: 100%;
+        height: 400px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 4rem;
+    }
+    
+    .recipe-info {
+        padding: 1rem;
+    }
+    
+    .recipe-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+    
+    .recipe-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #4a5568;
+        font-weight: 500;
+    }
+    
+    .meta-item i {
+        color: #667eea;
+        font-size: 1.2rem;
+    }
+    
+    .recipe-description {
+        font-size: 1.1rem;
+        color: #4a5568;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+    
+    .recipe-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-action {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 25px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-edit {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+    }
+    
+    .btn-delete {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+        color: white;
+    }
+    
+    .btn-favorite {
+        background: linear-gradient(135deg, #ed64a6 0%, #d53f8c 100%);
+        color: white;
+    }
+    
+    .btn-favorite.active {
+        background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);
+    }
+    
+    .btn-action:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        text-decoration: none;
+        color: white;
+    }
+    
+    .recipe-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3rem;
+        margin-bottom: 3rem;
+    }
+    
+    .ingredients-section,
+    .instructions-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .section-title i {
+        color: #667eea;
+    }
+    
+    .ingredients-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .ingredient-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .ingredient-item:last-child {
+        border-bottom: none;
+    }
+    
+    .ingredient-checkbox {
+        width: 18px;
+        height: 18px;
+        border: 2px solid #cbd5e0;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .ingredient-checkbox.checked {
+        background: #667eea;
+        border-color: #667eea;
+        position: relative;
+    }
+    
+    .ingredient-checkbox.checked::after {
+        content: '✓';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    .ingredient-text {
+        flex: 1;
+        color: #4a5568;
+        line-height: 1.4;
+        transition: all 0.3s ease;
+    }
+    
+    .ingredient-text.checked {
+        text-decoration: line-through;
+        color: #a0aec0;
+    }
+    
+    .instructions-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .instruction-item {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        border-radius: 10px;
+        background: #f7fafc;
+        border-left: 4px solid #667eea;
+    }
+    
+    .instruction-number {
+        background: #667eea;
+        color: white;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    
+    .instruction-text {
+        flex: 1;
+        color: #4a5568;
+        line-height: 1.6;
+    }
+    
+    .tags-section {
+        margin-bottom: 2rem;
+    }
+    
+    .tags-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .tag {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .difficulty-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .difficulty-facil {
+        background: #c6f6d5;
+        color: #22543d;
+    }
+    
+    .difficulty-medio {
+        background: #fef5e7;
+        color: #c05621;
+    }
+    
+    .difficulty-dificil {
+        background: #fed7d7;
+        color: #c53030;
+    }
+    
+    .rating-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 2rem;
+    }
+    
+    .rating-display {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .stars {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .star {
+        color: #ffd700;
+        font-size: 1.5rem;
+    }
+    
+    .star.empty {
+        color: #e2e8f0;
+    }
+    
+    .rating-info {
+        color: #4a5568;
+        font-size: 0.875rem;
+    }
+    
+    @media (max-width: 768px) {
+        .recipe-header {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .recipe-content {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        
+        .recipe-title {
+            font-size: 2rem;
+        }
+        
+        .recipe-meta {
+            gap: 1rem;
+        }
+        
+        .recipe-actions {
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="recipe-detail">
+    <div class="recipe-header">
+        <div class="recipe-image-container">
+            {% if receta.imagen %}
+            <img src="{{ receta.imagen.url }}" alt="{{ receta.titulo }}" class="recipe-image">
+            {% else %}
+            <div class="recipe-placeholder">
+                <i class="fas fa-utensils"></i>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="recipe-info">
+            <h1 class="recipe-title">{{ receta.titulo }}</h1>
+            
+            <div class="recipe-meta">
+                <div class="meta-item">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ receta.tiempo_preparacion }} minutos</span>
+                </div>
+                <div class="meta-item">
+                    <i class="fas fa-users"></i>
+                    <span>{{ receta.porciones }} porciones</span>
+                </div>
+                <span class="difficulty-badge difficulty-{{ receta.dificultad }}">
+                    {{ receta.get_dificultad_display }}
+                </span>
+            </div>
+            
+            {% if receta.descripcion %}
+            <div class="recipe-description">
+                {{ receta.descripcion|linebreaks }}
+            </div>
+            {% endif %}
+            
+            <div class="recipe-actions">
+                <button class="btn-action btn-favorite" data-recipe-id="{{ receta.id }}">
+                    <i class="fas fa-heart"></i>
+                    <span>Favorito</span>
+                </button>
+                {% if user.is_authenticated %}
+                <a href="{% url 'recetas:editar' receta.id %}" class="btn-action btn-edit">
+                    <i class="fas fa-edit"></i>
+                    <span>Editar</span>
+                </a>
+                <a href="{% url 'recetas:eliminar' receta.id %}" class="btn-action btn-delete">
+                    <i class="fas fa-trash"></i>
+                    <span>Eliminar</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tags -->
+    {% if receta.tags.all %}
+    <div class="tags-section">
+        <h3 class="section-title">
+            <i class="fas fa-tags"></i>
+            Etiquetas
+        </h3>
+        <div class="tags-list">
+            {% for tag in receta.tags.all %}
+            <span class="tag">{{ tag.nombre }}</span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Valoración -->
+    <div class="rating-section">
+        <h3 class="section-title">
+            <i class="fas fa-star"></i>
+            Valoración
+        </h3>
+        <div class="rating-display">
+            <div class="stars">
+                {% for i in "12345" %}
+                <span class="star {% if forloop.counter > receta.valoracion_promedio %}empty{% endif %}">
+                    <i class="fas fa-star"></i>
+                </span>
+                {% endfor %}
+            </div>
+            <span class="rating-info">
+                {{ receta.valoracion_promedio|floatformat:1 }} / 5 
+                ({{ receta.total_valoraciones }} valoracion{{ receta.total_valoraciones|pluralize:"es" }})
+            </span>
+        </div>
+    </div>
+    
+    <!-- Contenido principal -->
+    <div class="recipe-content">
+        <div class="ingredients-section">
+            <h3 class="section-title">
+                <i class="fas fa-list-ul"></i>
+                Ingredientes
+            </h3>
+            <ul class="ingredients-list">
+                {% for ingrediente in receta.ingredientes_lista %}
+                <li class="ingredient-item">
+                    <div class="ingredient-checkbox" onclick="toggleIngredient(this)"></div>
+                    <span class="ingredient-text">{{ ingrediente }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="instructions-section">
+            <h3 class="section-title">
+                <i class="fas fa-list-ol"></i>
+                Instrucciones
+            </h3>
+            <ol class="instructions-list">
+                {% for paso in receta.instrucciones_lista %}
+                <li class="instruction-item">
+                    <div class="instruction-number">{{ forloop.counter }}</div>
+                    <div class="instruction-text">{{ paso }}</div>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleIngredient(checkbox) {
+    const text = checkbox.nextElementSibling;
+    
+    if (checkbox.classList.contains('checked')) {
+        checkbox.classList.remove('checked');
+        text.classList.remove('checked');
+    } else {
+        checkbox.classList.add('checked');
+        text.classList.add('checked');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar favoritos
+    initializeFavorites();
+    
+    // Animación de entrada
+    const elements = document.querySelectorAll('.recipe-header, .recipe-content > div, .rating-section');
+    elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            element.style.transition = 'all 0.6s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
+{% endblock %}

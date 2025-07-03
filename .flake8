@@ -1,0 +1,53 @@
+# 🔧 Configuración de Flake8 (Python Linter)
+
+[flake8]
+# Longitud máxima de línea
+max-line-length = 100
+
+# Archivos y directorios a excluir
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    venv,
+    .env,
+    migrations,
+    settings.py,
+    node_modules,
+    media,
+    static/admin,
+    static/rest_framework
+
+# Códigos de error a ignorar
+ignore = 
+    # E203: whitespace before ':'
+    E203,
+    # W503: line break before binary operator
+    W503,
+    # F401: module imported but unused (para __init__.py)
+    F401
+
+# Número máximo de complejidad ciclomática
+max-complexity = 10
+
+# Número máximo de argumentos en una función
+max-arguments = 8
+
+# Configuración específica por archivo
+per-file-ignores = 
+    # En archivos __init__.py, ignorar imports no utilizados
+    __init__.py:F401,
+    # En archivos de settings, permitir líneas más largas
+    settings.py:E501,
+    # En archivos de tests, permitir líneas más largas
+    test_*.py:E501,
+    tests.py:E501
+
+# Mostrar estadísticas
+statistics = True
+
+# Mostrar el código fuente de cada error
+show-source = True
+
+# Contar errores
+count = True

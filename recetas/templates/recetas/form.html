@@ -1,0 +1,650 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Editar Receta{% else %}Nueva Receta{% endif %} | Recetas Gourmet{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+    
+    .form-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+    
+    .form-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-subtitle {
+        color: #718096;
+        font-size: 1.1rem;
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 3rem;
+        margin-bottom: 2rem;
+    }
+    
+    .form-group {
+        margin-bottom: 2rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 1rem;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        outline: none;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .form-control.error {
+        border-color: #e53e3e;
+        background: #fed7d7;
+    }
+    
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    
+    .form-select {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+    }
+    
+    .form-file {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .form-file input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+    
+    .form-file-label {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-file-label:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    
+    .form-help {
+        font-size: 0.875rem;
+        color: #718096;
+        margin-top: 0.5rem;
+    }
+    
+    .form-error {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+    
+    .form-row-thirds {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .tag-input-container {
+        position: relative;
+    }
+    
+    .tags-display {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .tag-item {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .tag-remove {
+        cursor: pointer;
+        font-weight: bold;
+        opacity: 0.7;
+        transition: opacity 0.3s ease;
+    }
+    
+    .tag-remove:hover {
+        opacity: 1;
+    }
+    
+    .ingredient-list,
+    .instruction-list {
+        margin-bottom: 1rem;
+    }
+    
+    .ingredient-item,
+    .instruction-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+    }
+    
+    .ingredient-item input,
+    .instruction-item textarea {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: 0.9rem;
+        padding: 0.25rem;
+    }
+    
+    .ingredient-item input:focus,
+    .instruction-item textarea:focus {
+        outline: none;
+        background: white;
+        border-radius: 4px;
+    }
+    
+    .remove-item {
+        background: #e53e3e;
+        color: white;
+        border: none;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 0.75rem;
+        transition: all 0.3s ease;
+    }
+    
+    .remove-item:hover {
+        background: #c53030;
+        transform: scale(1.1);
+    }
+    
+    .add-item {
+        background: #48bb78;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .add-item:hover {
+        background: #38a169;
+        transform: translateY(-2px);
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+    }
+    
+    .btn-cancel {
+        background: #718096;
+        color: white;
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .btn-cancel:hover {
+        background: #4a5568;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .image-preview {
+        margin-top: 1rem;
+        max-width: 300px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .image-preview img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 2rem 1.5rem;
+        }
+        
+        .form-row,
+        .form-row-thirds {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .form-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-header">
+        <h1 class="form-title">
+            {% if form.instance.pk %}
+                Editar Receta
+            {% else %}
+                Nueva Receta
+            {% endif %}
+        </h1>
+        <p class="form-subtitle">
+            {% if form.instance.pk %}
+                Actualiza los detalles de tu receta
+            {% else %}
+                Comparte tu receta favorita con la comunidad
+            {% endif %}
+        </p>
+    </div>
+    
+    <form method="post" enctype="multipart/form-data" class="recipe-form">
+        {% csrf_token %}
+        
+        <div class="form-card">
+            <!-- Información básica -->
+            <div class="form-group">
+                <label for="{{ form.titulo.id_for_label }}" class="form-label">Título de la receta</label>
+                {{ form.titulo }}
+                {% if form.titulo.errors %}
+                    <div class="form-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.titulo.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="{{ form.descripcion.id_for_label }}" class="form-label">Descripción</label>
+                {{ form.descripcion }}
+                <div class="form-help">Breve descripción de tu receta</div>
+                {% if form.descripcion.errors %}
+                    <div class="form-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.descripcion.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Imagen -->
+            <div class="form-group">
+                <label class="form-label">Imagen de la receta</label>
+                <div class="form-file">
+                    {{ form.imagen }}
+                    <label for="{{ form.imagen.id_for_label }}" class="form-file-label">
+                        <i class="fas fa-camera"></i>
+                        Seleccionar imagen
+                    </label>
+                </div>
+                <div class="form-help">Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 5MB</div>
+                {% if form.imagen.errors %}
+                    <div class="form-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.imagen.errors.0 }}
+                    </div>
+                {% endif %}
+                {% if form.instance.imagen %}
+                    <div class="image-preview">
+                        <img src="{{ form.instance.imagen.url }}" alt="Vista previa">
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Categoría y Tags -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="{{ form.categoria.id_for_label }}" class="form-label">Categoría</label>
+                    {{ form.categoria }}
+                    {% if form.categoria.errors %}
+                        <div class="form-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.categoria.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <div class="tag-input-container">
+                        <div class="tags-display" id="tags-display">
+                            {% for tag in form.instance.tags.all %}
+                                <div class="tag-item">
+                                    {{ tag.nombre }}
+                                    <span class="tag-remove" onclick="removeTag(this, '{{ tag.id }}')">×</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <input type="text" id="tag-input" placeholder="Escribe un tag y presiona Enter" class="form-control">
+                        <input type="hidden" name="tags" id="tags-hidden" value="">
+                    </div>
+                    <div class="form-help">Presiona Enter para agregar cada tag</div>
+                </div>
+            </div>
+            
+            <!-- Detalles de la receta -->
+            <div class="form-row-thirds">
+                <div class="form-group">
+                    <label for="{{ form.tiempo_preparacion.id_for_label }}" class="form-label">Tiempo (min)</label>
+                    {{ form.tiempo_preparacion }}
+                    {% if form.tiempo_preparacion.errors %}
+                        <div class="form-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.tiempo_preparacion.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.porciones.id_for_label }}" class="form-label">Porciones</label>
+                    {{ form.porciones }}
+                    {% if form.porciones.errors %}
+                        <div class="form-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.porciones.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="{{ form.dificultad.id_for_label }}" class="form-label">Dificultad</label>
+                    {{ form.dificultad }}
+                    {% if form.dificultad.errors %}
+                        <div class="form-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.dificultad.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Ingredientes -->
+            <div class="form-group">
+                <label class="form-label">Ingredientes</label>
+                <div class="ingredient-list" id="ingredient-list">
+                    {% for ingrediente in form.instance.ingredientes_lista %}
+                        <div class="ingredient-item">
+                            <input type="text" value="{{ ingrediente }}" placeholder="Ingrediente">
+                            <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                        </div>
+                    {% endfor %}
+                    {% if not form.instance.ingredientes_lista %}
+                        <div class="ingredient-item">
+                            <input type="text" placeholder="Ingrediente">
+                            <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" class="add-item" onclick="addIngredient()">
+                    <i class="fas fa-plus"></i> Agregar ingrediente
+                </button>
+                <textarea name="ingredientes" id="ingredientes-hidden" style="display: none;">{{ form.instance.ingredientes }}</textarea>
+            </div>
+            
+            <!-- Instrucciones -->
+            <div class="form-group">
+                <label class="form-label">Instrucciones</label>
+                <div class="instruction-list" id="instruction-list">
+                    {% for instruccion in form.instance.instrucciones_lista %}
+                        <div class="instruction-item">
+                            <textarea placeholder="Paso {{ forloop.counter }}">{{ instruccion }}</textarea>
+                            <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                        </div>
+                    {% endfor %}
+                    {% if not form.instance.instrucciones_lista %}
+                        <div class="instruction-item">
+                            <textarea placeholder="Paso 1"></textarea>
+                            <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+                        </div>
+                    {% endif %}
+                </div>
+                <button type="button" class="add-item" onclick="addInstruction()">
+                    <i class="fas fa-plus"></i> Agregar paso
+                </button>
+                <textarea name="instrucciones" id="instrucciones-hidden" style="display: none;">{{ form.instance.instrucciones }}</textarea>
+            </div>
+        </div>
+        
+        <!-- Acciones -->
+        <div class="form-actions">
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-save"></i>
+                {% if form.instance.pk %}Actualizar{% else %}Guardar{% endif %} Receta
+            </button>
+            <a href="{% url 'recetas:lista' %}" class="btn-cancel">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let tagsList = [];
+
+function addIngredient() {
+    const container = document.getElementById('ingredient-list');
+    const div = document.createElement('div');
+    div.className = 'ingredient-item';
+    div.innerHTML = `
+        <input type="text" placeholder="Ingrediente">
+        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+    `;
+    container.appendChild(div);
+}
+
+function addInstruction() {
+    const container = document.getElementById('instruction-list');
+    const div = document.createElement('div');
+    div.className = 'instruction-item';
+    const stepNumber = container.children.length + 1;
+    div.innerHTML = `
+        <textarea placeholder="Paso ${stepNumber}"></textarea>
+        <button type="button" class="remove-item" onclick="removeItem(this)">×</button>
+    `;
+    container.appendChild(div);
+}
+
+function removeItem(button) {
+    button.parentElement.remove();
+}
+
+function addTag(tagName) {
+    if (tagName && !tagsList.includes(tagName)) {
+        tagsList.push(tagName);
+        
+        const tagsDisplay = document.getElementById('tags-display');
+        const tagDiv = document.createElement('div');
+        tagDiv.className = 'tag-item';
+        tagDiv.innerHTML = `
+            ${tagName}
+            <span class="tag-remove" onclick="removeTag(this, '${tagName}')">×</span>
+        `;
+        tagsDisplay.appendChild(tagDiv);
+        
+        document.getElementById('tags-hidden').value = tagsList.join(',');
+    }
+}
+
+function removeTag(element, tagName) {
+    tagsList = tagsList.filter(tag => tag !== tagName);
+    element.parentElement.remove();
+    document.getElementById('tags-hidden').value = tagsList.join(',');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar tags
+    const tagInput = document.getElementById('tag-input');
+    tagInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const tagName = this.value.trim();
+            if (tagName) {
+                addTag(tagName);
+                this.value = '';
+            }
+        }
+    });
+    
+    // Inicializar tags existentes
+    {% for tag in form.instance.tags.all %}
+        tagsList.push('{{ tag.nombre }}');
+    {% endfor %}
+    
+    // Manejar envío del formulario
+    document.querySelector('.recipe-form').addEventListener('submit', function(e) {
+        // Recopilar ingredientes
+        const ingredients = [];
+        document.querySelectorAll('#ingredient-list input').forEach(input => {
+            if (input.value.trim()) {
+                ingredients.push(input.value.trim());
+            }
+        });
+        document.getElementById('ingredientes-hidden').value = ingredients.join('\n');
+        
+        // Recopilar instrucciones
+        const instructions = [];
+        document.querySelectorAll('#instruction-list textarea').forEach(textarea => {
+            if (textarea.value.trim()) {
+                instructions.push(textarea.value.trim());
+            }
+        });
+        document.getElementById('instrucciones-hidden').value = instructions.join('\n');
+        
+        // Validar que hay al menos un ingrediente y una instrucción
+        if (ingredients.length === 0) {
+            e.preventDefault();
+            showNotification('Debes agregar al menos un ingrediente', 'error');
+            return;
+        }
+        
+        if (instructions.length === 0) {
+            e.preventDefault();
+            showNotification('Debes agregar al menos una instrucción', 'error');
+            return;
+        }
+    });
+    
+    // Animación de entrada
+    const formCard = document.querySelector('.form-card');
+    formCard.style.opacity = '0';
+    formCard.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+        formCard.style.transition = 'all 0.6s ease';
+        formCard.style.opacity = '1';
+        formCard.style.transform = 'translateY(0)';
+    }, 100);
+});
+</script>
+{% endblock %}

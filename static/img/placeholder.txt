@@ -1,0 +1,3 @@
+# Placeholder for sample images
+# In a real project, you would add sample recipe images here
+# For now, the app will use Font Awesome icons as placeholders

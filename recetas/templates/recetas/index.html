@@ -1,0 +1,281 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}MiCocina - Tu Colección Personal de Recetas{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-background">
+        <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+        <div class="container">
+            <div class="row align-items-center min-vh-100">
+                <div class="col-lg-6">
+                    <h1 class="hero-title">Descubre Sabores Únicos</h1>
+                    <p class="hero-subtitle">Tu colección personal de recetas favoritas</p>
+                    <div class="hero-buttons">
+                        <a href="{% url 'recetas:lista' %}" class="btn btn-primary btn-lg hero-btn">
+                            <i class="fas fa-utensils"></i> Explorar Recetas
+                        </a>
+                        <a href="{% url 'recetas:crear' %}" class="btn btn-outline-light btn-lg hero-btn">
+                            <i class="fas fa-plus"></i> Crear Receta
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="hero-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-cookie-bite"></i>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number">{{ total_recetas }}</span>
+                                <span class="stat-label">Recetas</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number">{{ recetas_favoritas }}</span>
+                                <span class="stat-label">Favoritas</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-number">{{ promedio_tiempo|floatformat:0 }}</span>
+                                <span class="stat-label">Min Promedio</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="section-title">¿Por qué elegir MiCocina?</h2>
+                <p class="section-subtitle">Todas las herramientas que necesitas para organizar tus recetas favoritas</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3>Búsqueda Inteligente</h3>
+                    <p>Encuentra recetas por ingredientes, tiempo de preparación o tipo de comida de manera rápida y eficiente.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Diseño Responsive</h3>
+                    <p>Accede a tus recetas desde cualquier dispositivo, en cualquier momento y lugar que te encuentres.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-share-alt"></i>
+                    </div>
+                    <h3>Fácil Compartir</h3>
+                    <p>Comparte tus recetas favoritas con familiares y amigos de manera sencilla y rápida.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recetas Destacadas -->
+{% if recetas_destacadas %}
+<section class="featured-recipes py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="section-title">Recetas Destacadas</h2>
+                <p class="section-subtitle">Las recetas más populares y mejor valoradas</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for receta in recetas_destacadas %}
+            <div class="col-lg-4 col-md-6">
+                <div class="recipe-card-featured">
+                    <div class="recipe-image-container">
+                        <img src="{{ receta.imagen_url }}" alt="{{ receta.titulo }}" class="recipe-image">
+                        <div class="recipe-overlay">
+                            <div class="recipe-badges">
+                                <span class="badge time-badge">
+                                    <i class="fas fa-clock"></i> {{ receta.tiempo_preparacion }}min
+                                </span>
+                                {% if receta.calificacion %}
+                                <span class="badge rating-badge">
+                                    <i class="fas fa-star"></i> {{ receta.calificacion }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recipe-content">
+                        <h3 class="recipe-title">{{ receta.titulo }}</h3>
+                        <p class="recipe-description">{{ receta.descripcion_corta }}</p>
+                        
+                        <div class="recipe-meta">
+                            <span class="recipe-difficulty difficulty-{{ receta.dificultad }}">
+                                {{ receta.get_dificultad_display }}
+                            </span>
+                            <span class="recipe-category">
+                                {% if receta.categoria %}
+                                    <i class="{{ receta.categoria.icono }}"></i>
+                                    {{ receta.categoria.nombre }}
+                                {% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="recipe-actions">
+                            <a href="{{ receta.get_absolute_url }}" class="btn btn-primary">
+                                <i class="fas fa-eye"></i> Ver Receta
+                            </a>
+                            <button class="btn btn-outline-danger favorite-btn" data-id="{{ receta.id }}">
+                                <i class="fas fa-heart {% if not receta.es_favorita %}far{% endif %}"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{% url 'recetas:lista' %}" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-utensils"></i> Ver Todas las Recetas
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Categorías -->
+{% if categorias %}
+<section class="categories-section py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="section-title">Explora por Categorías</h2>
+                <p class="section-subtitle">Encuentra recetas organizadas por tipo de comida</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for categoria in categorias %}
+            <div class="col-lg-3 col-md-6">
+                <a href="{% url 'recetas:por_categoria' categoria.slug %}" class="category-card" style="--category-color: {{ categoria.color_hex }}">
+                    <div class="category-icon">
+                        <i class="{{ categoria.icono }}"></i>
+                    </div>
+                    <h4 class="category-name">{{ categoria.nombre }}</h4>
+                    <p class="category-count">{{ categoria.total_recetas }} recetas</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Quick Actions -->
+<section class="quick-actions py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="mb-3">¿Listo para cocinar?</h2>
+                <p class="lead mb-4">Crea tu primera receta y comienza a organizar tu colección culinaria personal.</p>
+            </div>
+            <div class="col-lg-6 text-center">
+                <a href="{% url 'recetas:crear' %}" class="btn btn-light btn-lg me-3">
+                    <i class="fas fa-plus"></i> Crear Receta
+                </a>
+                <a href="{% url 'recetas:crear_rapida' %}" class="btn btn-outline-light btn-lg">
+                    <i class="fas fa-bolt"></i> Receta Rápida
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recetas Recientes -->
+{% if recetas_recientes %}
+<section class="recent-recipes py-5">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="section-title">Recetas Recientes</h2>
+                <p class="section-subtitle">Las últimas recetas agregadas a la colección</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for receta in recetas_recientes %}
+            <div class="col-lg-4">
+                <div class="recent-recipe-card">
+                    <div class="recent-recipe-image">
+                        <img src="{{ receta.imagen_url }}" alt="{{ receta.titulo }}">
+                    </div>
+                    <div class="recent-recipe-content">
+                        <h4>{{ receta.titulo }}</h4>
+                        <p>{{ receta.descripcion_corta|truncatewords:15 }}</p>
+                        <div class="recent-recipe-meta">
+                            <span><i class="fas fa-clock"></i> {{ receta.tiempo_preparacion }}min</span>
+                            <span><i class="fas fa-users"></i> {{ receta.porciones }} porciones</span>
+                        </div>
+                        <a href="{{ receta.get_absolute_url }}" class="btn btn-sm btn-outline-primary">Ver Receta</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar estadísticas dinámicamente
+    fetch('/ajax/estadisticas/')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('total-recetas').textContent = data.total_recetas;
+            document.getElementById('total-favoritas').textContent = data.favoritas;
+            document.getElementById('promedio-tiempo').textContent = Math.round(data.promedio_tiempo);
+        })
+        .catch(error => console.error('Error cargando estadísticas:', error));
+    
+    // Inicializar botones de favoritos
+    document.querySelectorAll('.favorite-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const recetaId = this.dataset.id;
+            toggleFavorite(recetaId, this);
+        });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,53 @@
+# 🐳 Docker Compose para Recetas Gourmet
+# Configuración para desarrollo local
+
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: recetas_db
+    environment:
+      MYSQL_DATABASE: recetas_db
+      MYSQL_USER: recetas_user
+      MYSQL_PASSWORD: recetas_password
+      MYSQL_ROOT_PASSWORD: root_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+
+  # Aplicación web
+  web:
+    build: .
+    container_name: recetas_web
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=mysql://recetas_user:recetas_password@db:3306/recetas_db
+    restart: unless-stopped
+
+  # Redis para caché (opcional)
+  redis:
+    image: redis:7-alpine
+    container_name: recetas_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  media_volume:
+
+networks:
+  default:
+    name: recetas_network

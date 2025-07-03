@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}MiCocina - Recetas Favoritas{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Open+Sans:wght@300;400;600&family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    {% load static %}
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    
+    <meta name="description" content="{% block description %}Gestiona tu colección personal de recetas favoritas con MiCocina{% endblock %}">
+    <meta name="keywords" content="recetas, cocina, comida, ingredientes, gastronomía">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'recetas:index' %}">
+                <i class="fas fa-utensils text-primary"></i>
+                <span class="brand-text">MiCocina</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recetas:index' %}">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recetas:lista' %}">
+                            <i class="fas fa-list"></i> Todas las Recetas
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-filter"></i> Categorías
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'recetas:lista' %}">Todas</a></li>
+                            {% comment %}
+                            {% for categoria in categorias %}
+                            <li><a class="dropdown-item" href="{% url 'recetas:por_categoria' categoria.slug %}">
+                                <i class="{{ categoria.icono }}" style="color: {{ categoria.color_hex }}"></i>
+                                {{ categoria.nombre }}
+                            </a></li>
+                            {% endfor %}
+                            {% endcomment %}
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recetas:favoritas' %}">
+                            <i class="fas fa-heart text-danger"></i> Favoritas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'recetas:rapidas' %}">
+                            <i class="fas fa-clock text-warning"></i> Rápidas
+                        </a>
+                    </li>
+                </ul>
+                
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-outline-primary me-2" href="{% url 'recetas:crear' %}">
+                            <i class="fas fa-plus"></i> Nueva Receta
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin/" target="_blank">
+                            <i class="fas fa-cog"></i> Admin
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle"></i>
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer bg-dark text-white mt-5">
+        <div class="container">
+            <div class="row py-5">
+                <div class="col-lg-4">
+                    <h5><i class="fas fa-utensils"></i> MiCocina</h5>
+                    <p class="text-muted">Tu colección personal de recetas favoritas. Crea, organiza y comparte las mejores recetas.</p>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Enlaces</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'recetas:lista' %}" class="text-muted">Todas las Recetas</a></li>
+                        <li><a href="{% url 'recetas:crear' %}" class="text-muted">Crear Receta</a></li>
+                        <li><a href="{% url 'recetas:favoritas' %}" class="text-muted">Mis Favoritas</a></li>
+                        <li><a href="/api/" class="text-muted">API</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h5>Estadísticas</h5>
+                    <div class="stats-footer">
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-cookie-bite"></i> 
+                            <span id="total-recetas">0</span> recetas
+                        </p>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-heart"></i> 
+                            <span id="total-favoritas">0</span> favoritas
+                        </p>
+                        <p class="text-muted">
+                            <i class="fas fa-clock"></i> 
+                            <span id="promedio-tiempo">0</span> min promedio
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 MiCocina. Hecho con <i class="fas fa-heart text-danger"></i> y Django.</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <a href="https://github.com" class="text-muted me-3">
+                        <i class="fab fa-github"></i> GitHub
+                    </a>
+                    <a href="/api/" class="text-muted">
+                        <i class="fas fa-code"></i> API
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Search Results Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Resultados de Búsqueda</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="search-results-modal"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notification-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+
+    <!-- CSRF Token for AJAX -->
+    <script>
+        const csrfToken = '{{ csrf_token }}';
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+# 📁 Configuración de EditorConfig
+# EditorConfig ayuda a mantener estilos de codificación consistentes
+# entre diferentes editores e IDEs
+
+root = true
+
+# Configuración por defecto para todos los archivos
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Archivos Python
+[*.py]
+indent_style = space
+indent_size = 4
+max_line_length = 100
+
+# Archivos HTML
+[*.html]
+indent_style = space
+indent_size = 2
+
+# Archivos CSS
+[*.css]
+indent_style = space
+indent_size = 2
+
+# Archivos JavaScript
+[*.js]
+indent_style = space
+indent_size = 2
+
+# Archivos JSON
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Archivos YAML
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# Archivos Markdown
+[*.md]
+trim_trailing_whitespace = false
+indent_style = space
+indent_size = 2
+
+# Archivos de configuración
+[*.{toml,ini,cfg}]
+indent_style = space
+indent_size = 4
+
+# Archivos de shell
+[*.{sh,bash}]
+indent_style = space
+indent_size = 2
+
+# Archivos de batch (Windows)
+[*.bat]
+end_of_line = crlf
+indent_style = space
+indent_size = 2
+
+# Archivos de Docker
+[{Dockerfile,*.dockerfile}]
+indent_style = space
+indent_size = 2
+
+# Archivos de Make
+[Makefile]
+indent_style = tab
