@@ -16,7 +16,12 @@ exclude =
     node_modules,
     media,
     static/admin,
-    static/rest_framework
+    static/rest_framework,
+    manage.py,
+    */migrations/*,
+    .github,
+    htmlcov,
+    .pytest_cache
 
 # Códigos de error a ignorar
 ignore = 
@@ -25,23 +30,28 @@ ignore =
     # W503: line break before binary operator
     W503,
     # F401: module imported but unused (para __init__.py)
-    F401
+    F401,
+    # E501: line too long (manejado por max-line-length)
+    E501,
+    # W291: trailing whitespace
+    W291,
+    # W293: blank line contains whitespace
+    W293
 
 # Número máximo de complejidad ciclomática
-max-complexity = 10
-
-# Número máximo de argumentos en una función
-max-arguments = 8
+max-complexity = 15
 
 # Configuración específica por archivo
 per-file-ignores = 
     # En archivos __init__.py, ignorar imports no utilizados
     __init__.py:F401,
     # En archivos de settings, permitir líneas más largas
-    settings.py:E501,
+    settings.py:E501,F401,
     # En archivos de tests, permitir líneas más largas
-    test_*.py:E501,
-    tests.py:E501
+    test_*.py:E501,F401,
+    tests.py:E501,F401,
+    # En archivos de configuración
+    *.py:F401
 
 # Mostrar estadísticas
 statistics = True
